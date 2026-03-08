@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neuron</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      width: 340px;
+      background: #0f0f13;
+      color: #e8e8f0;
+      min-height: 200px;
+    }
+
+    .header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid #1e1e2e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #7c6aff, #a78bfa);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #444;
+      margin-left: auto;
+    }
+    .status-dot.online { background: #22c55e; }
+    .status-dot.offline { background: #ef4444; }
+
+    .status-count {
+      font-size: 11px;
+      color: #666;
+    }
+
+    .body { padding: 14px; }
+
+    /* Page info */
+    .page-info {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .page-title {
+      color: #c4c4d8;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .page-url {
+      color: #555;
+      font-size: 11px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c6aff, #a78bfa);
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+
+    .btn-secondary {
+      background: #1e1e2e;
+      color: #c4c4d8;
+      border: 1px solid #2a2a3a;
+      margin-bottom: 8px;
+    }
+    .btn-secondary:hover:not(:disabled) { background: #252535; }
+
+    .btn-ghost {
+      background: transparent;
+      color: #666;
+      font-size: 12px;
+    }
+    .btn-ghost:hover { color: #999; }
+
+    /* Feedback */
+    .feedback {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      margin-top: 10px;
+      display: none;
+    }
+    .feedback.success { border-color: #22c55e44; color: #22c55e; }
+    .feedback.error { border-color: #ef444444; color: #ef4444; }
+
+    /* Ask */
+    .ask-section { margin-top: 10px; }
+    .ask-input {
+      width: 100%;
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      color: #e8e8f0;
+      font-size: 12px;
+      padding: 9px 12px;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+    }
+    .ask-input:focus { border-color: #7c6aff66; }
+    .ask-input::placeholder { color: #444; }
+
+    .answer {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #c4c4d8;
+      margin-top: 8px;
+      display: none;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .divider {
+      height: 1px;
+      background: #1e1e2e;
+      margin: 12px 0;
+    }
+
+    .youtube-badge {
+      display: none;
+      background: #1e0a0a;
+      border: 1px solid #ef444422;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: #ef4444;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡</div>
+    <span class="logo-text">Neuron</span>
+    <span class="status-count" id="statusCount"></span>
+    <div class="status-dot" id="statusDot"></div>
+  </div>
+
+  <div class="body">
+    <div class="page-info">
+      <div class="page-title" id="pageTitle">Loading...</div>
+      <div class="page-url" id="pageUrl"></div>
+    </div>
+
+    <div class="youtube-badge" id="youtubeBadge">
+      📺 YouTube detected — will save transcript
+    </div>
+
+    <button class="btn btn-primary" id="savePage">
+      <span>⚡</span> Save to Neuron
+    </button>
+
+    <button class="btn btn-secondary" id="saveSelection" style="display:none">
+      <span>✂️</span> Save selected text
+    </button>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="divider"></div>
+
+    <div class="ask-section">
+      <textarea class="ask-input" id="askInput" rows="2"
+        placeholder="Ask your knowledge base anything..."></textarea>
+      <button class="btn btn-secondary" id="askBtn" style="margin-top:6px">
+        Ask Neuron
+      </button>
+      <div class="answer" id="answer"></div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

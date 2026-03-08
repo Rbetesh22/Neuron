@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+
+# Cache
+.neuron/
