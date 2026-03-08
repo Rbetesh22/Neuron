@@ -184,11 +184,43 @@ struct HomeView: View {
             guard let titleRange = Range(match.range(at: 1), in: text),
                   let bodyRange = Range(match.range(at: 2), in: text) else { return nil }
             let title = String(text[titleRange]).trimmingCharacters(in: .whitespacesAndNewlines)
-            let body = String(text[bodyRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let body = cleanForDisplay(String(text[bodyRange]))
             guard !body.isEmpty else { return nil }
             return (title, body)
         }
     }
+
+    /// Cleans AI-generated markdown for clean display in SwiftUI Text views.
+    /// - Strips [N] source citations
+    /// - Converts markdown bullets to Unicode bullets
+    /// - Preserves bold/italic (handled by AttributedString)
+    private func cleanForDisplay(_ text: String) -> String {
+        var s = text
+        // Remove [1], [2], ... citations
+        s = s.replacingOccurrences(of: #"\s*\[\d+(?:,\s*\d+)*\]"#, with: "", options: .regularExpression)
+        // Convert "- item" and "* item" list lines to bullet points
+        s = s.replacingOccurrences(of: #"(?m)^[\-\*]\s+"#, with: "\u{2022} ", options: .regularExpression)
+        // Collapse 3+ blank lines to 2
+        s = s.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+        return s.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+// MARK: - Text cleaning
+
+/// Strips AI citation markers and converts markdown list syntax for clean SwiftUI display.
+func cleanAIText(_ text: String) -> String {
+    var s = text
+    s = s.replacingOccurrences(of: #"\s*\[\d+(?:,\s*\d+)*\]"#, with: "", options: .regularExpression)
+    s = s.replacingOccurrences(of: #"(?m)^[\-\*]\s+"#, with: "\u{2022} ", options: .regularExpression)
+    s = s.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+    return s.trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
+func renderMarkdown(_ text: String) -> AttributedString {
+    let cleaned = cleanAIText(text)
+    return (try? AttributedString(markdown: cleaned,
+        options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(cleaned)
 }
 
 // MARK: - Digest Card
@@ -249,8 +281,7 @@ struct DigestCard: View {
 
             if sections.isEmpty {
                 // No sections parsed — render raw with markdown
-                let attrRaw = (try? AttributedString(markdown: raw)) ?? AttributedString(raw)
-                Text(attrRaw)
+                Text(renderMarkdown(raw))
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .lineSpacing(4)
@@ -299,7 +330,7 @@ struct DigestSection: View {
     let isLast: Bool
 
     private var renderedContent: AttributedString {
-        (try? AttributedString(markdown: content)) ?? AttributedString(content)
+        renderMarkdown(content)
     }
 
     var body: some View {
@@ -342,7 +373,7 @@ struct DailyFactCard: View {
                 .textCase(.uppercase)
                 .tracking(0.7)
 
-            Text(fact)
+            Text(renderMarkdown(fact))
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
                 .lineSpacing(3)

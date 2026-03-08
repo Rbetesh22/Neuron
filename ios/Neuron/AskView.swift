@@ -196,13 +196,7 @@ struct MessageBubble: View {
     let isStreaming: Bool
 
     private var parsedText: AttributedString {
-        // Use full markdown with interpretedSyntax to support code, bold, italic, headers
-        var options = AttributedString.MarkdownParsingOptions()
-        options.interpretedSyntax = .inlineOnlyPreservingWhitespace
-        if let attr = try? AttributedString(markdown: message.text, options: options) {
-            return attr
-        }
-        return AttributedString(message.text)
+        renderMarkdown(message.text)
     }
 
     var body: some View {

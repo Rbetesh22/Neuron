@@ -643,8 +643,13 @@ class NeuronEngine:
             f"## One Thread to Pull\n"
             f"Name exactly ONE concept, thinker, or open question from the sources that is worth going deeper on today. "
             f"Be specific about why now [N].\n\n"
-            f"Rules: Under 400 words total. No scheduling, no life admin, no generic encouragement. "
-            f"Write like a brilliant study partner who has read everything in the library.\n\n"
+            f"Rules:\n"
+            f"- Under 400 words total\n"
+            f"- No scheduling, no life admin, no generic encouragement\n"
+            f"- Never paste event titles, email subjects, or calendar entries verbatim — they are context only\n"
+            f"- Never use bullet lists (- or *) — write in natural prose paragraphs\n"
+            f"- No source citations like [1] or [N] — just write naturally\n"
+            f"- Write like a brilliant study partner who has read everything in the library\n\n"
             f"KNOWLEDGE SOURCES:\n{context}",
             max_tokens=1400,
         )
@@ -707,6 +712,8 @@ class NeuronEngine:
             f"- 2–3 sentences max. No filler. No 'Did you know?'\n"
             f"- Ground it in the sources — don't invent\n"
             f"- Make it specific (names, numbers, places) not vague\n"
+            f"- Never reference calendar events, emails, or meeting titles\n"
+            f"- No bullet points, no citations like [1]\n"
             f"- Return ONLY the fact text, nothing else\n\n"
             f"SOURCES:\n{fact_context}",
             max_tokens=200,
